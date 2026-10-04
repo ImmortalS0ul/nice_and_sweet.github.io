@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python. Создание ботов — Шпаргалка</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f1419;
+    --bg-2: #1a2028;
+    --bg-3: #242b36;
+    --accent: #4fc3f7;
+    --accent-2: #81c784;
+    --accent-3: #ffb74d;
+    --text: #e0e6ed;
+    --text-dim: #8b95a5;
+    --border: #2d3542;
+    --code-bg: #1e2530;
+    --keyword: #c792ea;
+    --string: #c3e88d;
+    --number: #f78c6c;
+    --comment: #637777;
+    --func: #82aaff;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    background: var(--bg-2);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar h2 {
+    color: var(--accent);
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .sidebar .lesson-group { margin-bottom: 20px; }
+  .sidebar .lesson-title {
+    color: var(--accent-3);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 12px 0 6px 0;
+    font-weight: 600;
+  }
+  .sidebar a {
+    display: block;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+  }
+  .sidebar a:hover {
+    background: var(--bg-3);
+    color: var(--text);
+    border-left-color: var(--accent);
+  }
+  /* Main */
+  .main {
+    flex: 1;
+    padding: 40px 60px;
+    max-width: 1200px;
+  }
+  .hero {
+    text-align: center;
+    padding: 40px 0 60px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 50px;
+  }
+  .hero h1 {
+    font-size: 42px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .hero p { color: var(--text-dim); font-size: 18px; }
+  section {
+    margin-bottom: 70px;
+    scroll-margin-top: 20px;
+  }
+  h2.section-title {
+    font-size: 32px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  h3 {
+    font-size: 22px;
+    color: var(--accent-3);
+    margin: 30px 0 14px 0;
+  }
+  h4 {
+    font-size: 17px;
+    color: var(--accent-2);
+    margin: 20px 0 10px 0;
+  }
+  p { margin-bottom: 12px; }
+  ul, ol { margin: 10px 0 16px 24px; }
+  li { margin-bottom: 6px; }
+  /* Code blocks */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+  .code-header {
+    background: var(--bg-3);
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .code-header .filename { font-family: monospace; color: var(--accent); }
+  pre {
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .line {
+    display: flex;
+    padding: 2px 0;
+  }
+  .line-num {
+    color: var(--text-dim);
+    min-width: 30px;
+    user-select: none;
+    opacity: 0.5;
+    text-align: right;
+    padding-right: 12px;
+  }
+  .line-code { flex: 1; white-space: pre; }
+  .line-comment {
+    display: block;
+    color: var(--comment);
+    font-style: italic;
+    padding: 4px 0 4px 42px;
+    font-size: 13px;
+  }
+  .kw { color: var(--keyword); }
+  .str { color: var(--string); }
+  .num { color: var(--number); }
+  .com { color: var(--comment); font-style: italic; }
+  .fn { color: var(--func); }
+  .op { color: #ff5370; }
+  /* Info boxes */
+  .info-box {
+    background: var(--bg-2);
+    border-left: 4px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin: 16px 0;
+  }
+  .info-box.warn { border-left-color: var(--accent-3); }
+  .info-box.success { border-left-color: var(--accent-2); }
+  .info-box strong { color: var(--accent); }
+  .info-box.warn strong { color: var(--accent-3); }
+  .info-box.success strong { color: var(--accent-2); }
+  /* Term cards */
+  .term-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .term-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .term-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+  }
+  .term-card .term-name {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .term-card .term-desc { color: var(--text-dim); font-size: 14px; }
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    background: var(--bg-2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th {
+    background: var(--bg-3);
+    padding: 12px 16px;
+    text-align: left;
+    color: var(--accent);
+    font-size: 14px;
+  }
+  td {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+  }
+  td code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-2);
+    font-family: monospace;
+    font-size: 13px;
+  }
+  /* Inline code */
+  p code, li code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-2);
+    font-family: monospace;
+    font-size: 13px;
+    border: 1px solid var(--border);
+  }
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .flow-step {
+    background: var(--bg-2);
+    border: 1px solid var(--accent);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+  }
+  .flow-arrow { color: var(--accent); font-size: 20px; }
+  /* Mobile */
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: relative;
+    }
+    .main { padding: 20px; }
+    .hero h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <h2>📘 Шпаргалка</h2>
+
+  <div class="lesson-group">
+    <div class="lesson-title">Занятие 1 · Основы</div>
+    <a href="#l1-intro">Введение</a>
+    <a href="#l1-vars">Переменные</a>
+    <a href="#l1-types">Типы данных</a>
+    <a href="#l1-cond">Условия if/else</a>
+    <a href="#l1-loops">Циклы for</a>
+    <a href="#l1-func">Функции def</a>
+    <a href="#l1-dict">Словари dict</a>
+    <a href="#l1-smart">Логика бота</a>
+    <a href="#l1-console">Консольный мини-бот</a>
+  </div>
+
+  <div class="lesson-group">
+    <div class="lesson-title">Занятие 2 · Первый VK-бот</div>
+    <a href="#l2-path">Путь сообщения</a>
+    <a href="#l2-terms">Термины: API, Long Poll, Token</a>
+    <a href="#l2-register">Регистрация в VK</a>
+    <a href="#l2-setup">Настройка сообщества</a>
+    <a href="#l2-project">Подготовка проекта</a>
+    <a href="#l2-imports">Импорт библиотек</a>
+    <a href="#l2-env">Файл .env</a>
+    <a href="#l2-send">Функция send_message</a>
+    <a href="#l2-connect">Подключение к VK</a>
+    <a href="#l2-listen">Получение событий</a>
+    <a href="#l2-full">Полный код бота</a>
+  </div>
+
+  <div class="lesson-group">
+    <div class="lesson-title">Занятие 3 · Обработчики</div>
+    <a href="#l3-cmd">Команды</a>
+    <a href="#l3-norm">Нормализация</a>
+    <a href="#l3-lambda">Lambda-функции</a>
+    <a href="#l3-handlers">Словарь обработчиков</a>
+    <a href="#l3-full3">Полный код</a>
+  </div>
+</aside>
+
+<main class="main">
+
+<div class="hero">
+  <h1>Python. Создание ботов</h1>
+  <p>Полная шпаргалка по трём занятиям курса с разбором каждой строки кода</p>
+</div>
+
+<!-- ===================== ЗАНЯТИЕ 1 ===================== -->
+<section id="l1-intro">
+  <h2 class="section-title">Занятие 1 · Основы Python</h2>
+  <p>Первое занятие знакомит с базовыми конструкциями языка Python, на которых строится любая программа — в том числе и бот. Мы изучим переменные, типы данных, условия, циклы, функции и словари, а в конце соберём консольный мини-бот.</p>
+</section>
+
+<section id="l1-vars">
+  <h3>1.1 Переменные</h3>
+  <p><strong>Переменная</strong> — это понятное имя, по которому программа хранит значение. Представьте коробку с подписью: имя — это подпись, а внутри лежит значение.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">variables.py</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">user_name = <span class="str">'Маша'</span></span></span>
+<span class="line-comment"># Создаём переменную user_name и кладём в неё строку 'Маша'</span>
+<span class="line"><span class="line-num">2</span><span class="line-code">messages_count = <span class="num">3</span></span></span>
+<span class="line-comment"># Переменная messages_count хранит целое число 3</span>
+<span class="line"><span class="line-num">3</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">4</span><span class="line-code"><span class="fn">print</span>(user_name)</span></span>
+<span class="line-comment"># Функция print выводит значение переменной на экран → Маша</span>
+<span class="line"><span class="line-num">5</span><span class="line-code">messages_count = messages_count + <span class="num">1</span></span></span>
+<span class="line-comment"># Берём старое значение (3), прибавляем 1, кладём обратно → теперь 4</span>
+</pre>
+  </div>
+
+  <div class="info-box">
+    <strong>Правила именования:</strong> только буквы, цифры и знак <code>_</code>; нельзя начинать с цифры; принято использовать snake_case (слова через подчёркивание).
+  </div>
+</section>
+
+<section id="l1-types">
+  <h3>1.2 Типы данных</h3>
+  <p><strong>Тип данных</strong> объясняет Python, что хранится в значении и какие действия с ним разрешены.</p>
+
+  <table>
+    <tr><th>Тип</th><th>Описание</th><th>Пример</th></tr>
+    <tr><td><code>str</code></td><td>Строка — любой текст</td><td><code>name = 'Маша'</code></td></tr>
+    <tr><td><code>int</code></td><td>Целое число</td><td><code>age = 12</code></td></tr>
+    <tr><td><code>float</code></td><td>Дробное число</td><td><code>rating = 4.8</code></td></tr>
+    <tr><td><code>bool</code></td><td>Логический: True / False</td><td><code>is_admin = False</code></td></tr>
+  </table>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">types.py</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">name = <span class="str">'Маша'</span>          <span class="com"># str — строка</span></span></span>
+<span class="line"><span class="line-num">2</span><span class="line-code">age = <span class="num">12</span>                 <span class="com"># int — целое число</span></span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code">rating = <span class="num">4.8</span>            <span class="com"># float — дробное число</span></span></span>
+<span class="line"><span class="line-num">4</span><span class="line-code">is_admin = <span class="kw">False</span>      <span class="com"># bool — логический тип</span></span></span>
+<span class="line"><span class="line-num">5</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">6</span><span class="line-code"><span class="fn">print</span>(<span class="fn">type</span>(age))       <span class="com"># Функция type() показывает тип → &lt;class 'int'&gt;</span></span></span>
+</pre>
+  </div>
+
+  <div class="info-box">
+    <strong>Зачем это знать боту?</strong> Числа можно складывать, строки — склеивать. Если перепутать типы, программа выдаст ошибку.
+  </div>
+</section>
+
+<section id="l1-cond">
+  <h3>1.3 Условия if / else</h3>
+  <p><strong>Условие</strong> позволяет программе выбирать действие в зависимости от результата проверки. Это основа логики бота: «если пользователь написал "привет" — ответить "здравствуй"».</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">condition.py</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">score = <span class="num">8</span></span></span>
+<span class="line-comment"># Переменная score хранит балл пользователя</span>
+<span class="line"><span class="line-num">2</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code"><span class="kw">if</span> score > <span class="num">7</span>:</span></span>
+<span class="line-comment"># Проверка: если score больше 7, то...</span>
+<span class="line"><span class="line-num">4</span><span class="line-code">    <span class="fn">print</span>(<span class="str">"Отлично"</span>)</span></span>
+<span class="line-comment"># ...вывести "Отлично" (отступ в 4 пробела обязателен!)</span>
+<span class="line"><span class="line-num">5</span><span class="line-code"><span class="kw">else</span>:</span></span>
+<span class="line-comment"># иначе (если условие не выполнено)...</span>
+<span class="line"><span class="line-num">6</span><span class="line-code">    <span class="fn">print</span>(<span class="str">"Попробуем еще"</span>)</span></span>
+<span class="line-comment"># ...вывести "Попробуем еще"</span>
+</pre>
+  </div>
+
+  <div class="info-box warn">
+    <strong>Внимание:</strong> в Python отступы — это часть синтаксиса. Код внутри <code>if</code> и <code>else</code> обязательно должен иметь одинаковый отступ (обычно 4 пробела).
+  </div>
+</section>
+
+<section id="l1-loops">
+  <h3>1.4 Цикл for</h3>
+  <p><strong>Цикл</strong> повторяет действие и избавляет от дублирования кода. Если у нас есть список команд — мы пройдёмся по нему циклом.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">loop.py</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">commands = [<span class="str">'привет'</span>, <span class="str">'помощь'</span>, <span class="str">'факт'</span>]</span></span>
+<span class="line-comment"># Создаём список (массив) из трёх строк</span>
+<span class="line"><span class="line-num">2</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code"><span class="kw">for</span> command <span class="kw">in</span> commands:</span></span>
+<span class="line-comment"># Для КАЖДОГО элемента списка (по очереди кладём его в переменную command)...</span>
+<span class="line"><span class="line-num">4</span><span class="line-code">    <span class="fn">print</span>(command)</span></span>
+<span class="line-comment"># ...выводим его на экран. Итерации: 'привет' → 'помощь' → 'факт'</span>
+</pre>
+  </div>
+</section>
+
+<section id="l1-func">
+  <h3>1.5 Функции def</h3>
+  <p><strong>Функция</strong> объединяет несколько действий под одним именем, чтобы вызывать их повторно. Это как рецепт: один раз описали — и пользуетесь сколько угодно.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">function.py</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="kw">def</span> <span class="fn">make_greeting</span>(name):</span></span>
+<span class="line-comment"># def — объявляем функцию; make_greeting — её имя; name — параметр (входные данные)</span>
+<span class="line"><span class="line-num">2</span><span class="line-code">    <span class="kw">return</span> <span class="str">f"Привет, {name}!"</span></span></span>
+<span class="line-comment"># return — функция ВОЗВРАЩАЕТ результат. f"..." — f-строка, подставляет переменную</span>
+<span class="line"><span class="line-num">3</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">4</span><span class="line-code">answer = <span class="fn">make_greeting</span>(<span class="str">"Маша"</span>)</span></span>
+<span class="line-comment"># Вызываем функцию, передавая "Маша" как name. Результат кладём в answer</span>
+<span class="line"><span class="line-num">5</span><span class="line-code"><span class="fn">print</span>(answer)</span></span>
+<span class="line-comment"># Выведет: Привет, Маша!</span>
+</pre>
+  </div>
+</section>
+
+<section id="l1-dict">
+  <h3>1.6 Словари dict</h3>
+  <p><strong>Словарь</strong> хранит пары «ключ: значение» и быстро находит значение по ключу. Для бота это идеальный способ связать команду и ответ.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">dict.py</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">answers = {</span></span>
+<span class="line-comment"># Открывающая фигурная скобка — начало словаря</span>
+<span class="line"><span class="line-num">2</span><span class="line-code">    <span class="str">'привет'</span>: <span class="str">'Привет!'</span>,</span></span>
+<span class="line-comment"># Ключ 'привет' → значение 'Привет!'</span>
+<span class="line"><span class="line-num">3</span><span class="line-code">    <span class="str">'помощь'</span>: <span class="str">'Команды: привет, помощь'</span>,</span></span>
+<span class="line-comment"># Ключ 'помощь' → значение-подсказка</span>
+<span class="line"><span class="line-num">4</span><span class="line-code">}</span></span>
+<span class="line-comment"># Закрывающая скобка</span>
+<span class="line"><span class="line-num">5</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">6</span><span class="line-code"><span class="fn">print</span>(answers[<span class="str">'привет'</span>])</span></span>
+<span class="line-comment"># Обращаемся по ключу → получаем 'Привет!'</span>
+<span class="line"><span class="line-num">7</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">8</span><span class="line-code"><span class="fn">print</span>(answers.<span class="fn">get</span>(<span class="str">'факт'</span>, <span class="str">'Неизвестная команда'</span>))</span></span>
+<span class="line-comment"># Метод .get() безопаснее: если ключа нет — вернёт второе значение (запасное)</span>
+</pre>
+  </div>
+
+  <div class="info-box success">
+    <strong>Разница:</strong> <code>answers['факт']</code> вызовет ошибку, если ключа нет. <code>answers.get('факт', 'запас')</code> вернёт 'запас' — программа не упадёт.
+  </div>
+</section>
+
+<section id="l1-smart">
+  <h3>1.7 SMART-код: как Python превращается в бота</h3>
+  <p>Пять шагов, из которых состоит любой бот:</p>
+  <ol>
+    <li><strong>Переменная</strong> сохраняет текст пользователя.</li>
+    <li><strong>Условие</strong> выбирает ответ.</li>
+    <li><strong>Словарь</strong> связывает команду и реакцию.</li>
+    <li><strong>Функция</strong> убирает повторяющийся код.</li>
+    <li><strong>Цикл</strong> позволяет программе не завершаться после одного сообщения.</li>
+  </ol>
+</section>
+
+<section id="l1-console">
+  <h3>1.8 Консольный мини-бот</h3>
+  <p>Собираем всё вместе в работающую программу. Она крутится в терминале, но по устройству уже похожа на настоящего VK-бота.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">lesson.py — полный разбор</span></div>
+<pre>
+<span class="line"><span class="line-num"> 1</span><span class="line-code">COMMANDS = {</span></span>
+<span class="line-comment"># Создаём словарь-хранилище ответов. Ключ — команда, значение — ответ бота</span>
+<span class="line"><span class="line-num"> 2</span><span class="line-code">    <span class="str">"привет"</span>: <span class="str">"Привет! Скоро стану VK-ботом"</span>,</span></span>
+<span class="line"><span class="line-num"> 3</span><span class="line-code">    <span class="str">"помощь"</span>: <span class="str">"Команды: привет, факт, счет, выход"</span>,</span></span>
+<span class="line"><span class="line-num"> 4</span><span class="line-code">    <span class="str">"факт"</span>:   <span class="str">"Бот работает по одному правилу: получаем сообщение → выбираем ответ."</span>,</span></span>
+<span class="line"><span class="line-num"> 5</span><span class="line-code">}</span></span>
+<span class="line"><span class="line-num"> 6</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num"> 7</span><span class="line-code"><span class="kw">def</span> <span class="fn">normalize</span>(text):</span></span>
+<span class="line-comment"># Функция приводит текст к единому виду, чтобы "Привет", "ПРИВЕТ " и "привет" считались одной командой</span>
+<span class="line"><span class="line-num"> 8</span><span class="line-code">    <span class="kw">return</span> <span class="str">""</span>.<span class="fn">join</span>(text.<span class="fn">lower</span>().<span class="fn">strip</span>().<span class="fn">split</span>())</span></span>
+<span class="line-comment"># Разбор по шагам (справа налево):</span>
+<span class="line-comment">#   text.lower()   → делает все буквы маленькими: "Привет " → "привет "</span>
+<span class="line-comment">#   .strip()       → убирает пробелы по краям: "привет " → "привет"</span>
+<span class="line-comment">#   .split()       → разбивает на слова: ["привет"]</span>
+<span class="line-comment">#   "".join(...)   → склеивает слова обратно без пробелов: "привет"</span>
+<span class="line"><span class="line-num"> 9</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">10</span><span class="line-code"><span class="kw">def</span> <span class="fn">count_letters</span>(text):</span></span>
+<span class="line-comment"># Функция считает количество букв в строке</span>
+<span class="line"><span class="line-num">11</span><span class="line-code">    letters = [symbol <span class="kw">for</span> symbol <span class="kw">in</span> text <span class="kw">if</span> symbol.<span class="fn">isalpha</span>()]</span></span>
+<span class="line-comment"># list comprehension: проходим по каждому символу строки и берём только те, у которых .isalpha() == True (т.е. буквы)</span>
+<span class="line"><span class="line-num">12</span><span class="line-code">    <span class="kw">return</span> <span class="str">f"В сообщении {len(letters)} букв."</span></span></span>
+<span class="line-comment"># len() — длина списка, т.е. количество букв. f-строка вставляет число в текст</span>
+<span class="line"><span class="line-num">13</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">14</span><span class="line-code"><span class="kw">def</span> <span class="fn">get_answer</span>(text):</span></span>
+<span class="line-comment"># Главная функция: принимает текст пользователя и возвращает ответ</span>
+<span class="line"><span class="line-num">15</span><span class="line-code">    command = <span class="fn">normalize</span>(text)</span></span>
+<span class="line-comment"># Приводим ввод к единому виду</span>
+<span class="line"><span class="line-num">16</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">17</span><span class="line-code">    <span class="kw">if</span> command == <span class="str">"счет"</span>:</span></span>
+<span class="line-comment"># Особый случай: команда "счет" требует дополнительного ввода</span>
+<span class="line"><span class="line-num">18</span><span class="line-code">        <span class="kw">return</span> <span class="fn">count_letters</span>(<span class="fn">input</span>(<span class="str">"Введите строку для подсчета: "</span>))</span></span>
+<span class="line-comment"># input() ждёт ввод пользователя в терминале и передаёт его в count_letters</span>
+<span class="line"><span class="line-num">19</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">20</span><span class="line-code">    <span class="kw">return</span> COMMANDS.<span class="fn">get</span>(command, <span class="str">"Не знаю такую команду. Напиши: помощь"</span>)</span></span>
+<span class="line-comment"># Ищем команду в словаре. Если нет — возвращаем запасной ответ</span>
+<span class="line"><span class="line-num">21</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">22</span><span class="line-code"><span class="kw">while</span> <span class="kw">True</span>:</span></span>
+<span class="line-comment"># Бесконечный цикл: бот работает, пока мы его не остановим</span>
+<span class="line"><span class="line-num">23</span><span class="line-code">    user_text = <span class="fn">input</span>(<span class="str">"Вы: "</span>)</span></span>
+<span class="line-comment"># Читаем ввод пользователя и кладём в переменную user_text</span>
+<span class="line"><span class="line-num">24</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">25</span><span class="line-code">    <span class="kw">if</span> <span class="fn">normalize</span>(user_text) == <span class="str">"выход"</span>:</span></span>
+<span class="line-comment"># Если пользователь написал "выход" (в любом регистре)...</span>
+<span class="line"><span class="line-num">26</span><span class="line-code">        <span class="fn">print</span>(<span class="str">"Бот: Пока-пока!"</span>)</span></span>
+<span class="line-comment"># ...прощаемся...</span>
+<span class="line"><span class="line-num">27</span><span class="line-code">        <span class="kw">break</span></span></span>
+<span class="line-comment"># ...и break ВЫХОДИТ из цикла while. Программа завершается</span>
+<span class="line"><span class="line-num">28</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">29</span><span class="line-code">    <span class="fn">print</span>(<span class="str">"Бот:"</span>, <span class="fn">get_answer</span>(user_text))</span></span>
+<span class="line-comment"># Иначе — вызываем get_answer и печатаем ответ с подписью "Бот:"</span>
+</pre>
+  </div>
+
+  <h4>Разбор ключевых методов строк:</h4>
+  <table>
+    <tr><th>Метод</th><th>Что делает</th><th>Пример</th></tr>
+    <tr><td><code>.lower()</code></td><td>Все буквы → маленькие</td><td><code>'ПрИвЕт'.lower()</code> → <code>'привет'</code></td></tr>
+    <tr><td><code>.strip()</code></td><td>Убирает пробелы по краям</td><td><code>' привет '.strip()</code> → <code>'привет'</code></td></tr>
+    <tr><td><code>.split()</code></td><td>Разбивает строку на список слов</td><td><code>'привет мир'.split()</code> → <code>['привет','мир']</code></td></tr>
+    <tr><td><code>''.join(list)</code></td><td>Склеивает список в строку</td><td><code>''.join(['a','b'])</code> → <code>'ab'</code></td></tr>
+    <tr><td><code>.isalpha()</code></td><td>True, если символ — буква</td><td><code>'а'.isalpha()</code> → <code>True</code>, <code>'1'.isalpha()</code> → <code>False</code></td></tr>
+    <tr><td><code>len(x)</code></td><td>Длина объекта (строки, списка)</td><td><code>len('привет')</code> → <code>6</code></td></tr>
+  </table>
+</section>
+
+<!-- ===================== ЗАНЯТИЕ 2 ===================== -->
+<section id="l2-path">
+  <h2 class="section-title">Занятие 2 · Первый VK-бот</h2>
+  <h3>2.1 Путь сообщения</h3>
+  <p>Прежде чем писать код, важно понять, как сообщение доходит от пользователя до бота и обратно:</p>
+
+  <div class="flow">
+    <div class="flow-step">👤 Пользователь</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🌐 VK создаёт событие</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">📡 Long Poll доставляет</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🐍 Python с токеном</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">⚙️ Выбирает ответ</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">💬 Ответ пользователю</div>
+  </div>
+</section>
+
+<section id="l2-terms">
+  <h3>2.2 Термины</h3>
+  <div class="term-grid">
+    <div class="term-card">
+      <div class="term-name">Сообщество</div>
+      <div class="term-desc">Страница в VK для объединения пользователей, публикации контента и ведения бизнеса. Бот живёт внутри сообщества.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">API</div>
+      <div class="term-desc">Application Programming Interface — набор готовых правил и функций, через которые одна программа (наш бот) общается с другой (VK).</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">Long Poll</div>
+      <div class="term-desc">Инструмент для мгновенного получения обновлений сообщества. Бот не знает, когда придёт сообщение, поэтому Long Poll «слушает» сервер и отдаёт события по одному.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">Событие</div>
+      <div class="term-desc">Объект с полезной информацией, который VK отправляет боту, когда в сообществе происходит действие (новое сообщение, лайк, подписка и т.д.).</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">Токен</div>
+      <div class="term-desc">Цифровая строка-пропуск, которая авторизует бота для работы с API. Хранится только в <code>.env</code>, никому не показывается.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">.env</div>
+      <div class="term-desc">Простой текстовый файл конфигурации для хранения секретов и параметров в виде переменных окружения. Не загружается в Git!</div>
+    </div>
+  </div>
+
+  <h4>Как работает API (4 шага):</h4>
+  <ol>
+    <li>Python отправляет VK понятный запрос.</li>
+    <li>VK проверяет токен и параметры.</li>
+    <li>VK выполняет действие или возвращает ошибку.</li>
+    <li>Python использует полученный результат.</li>
+  </ol>
+
+  <div class="info-box warn">
+    <strong>Важно про токен:</strong> если токен «утёк» (кто-то его увидел) — немедленно создавайте новый в настройках сообщества и отключайте старый.
+  </div>
+</section>
+
+<section id="l2-register">
+  <h3>2.3 Регистрация в VK</h3>
+  <ol>
+    <li>Зайти на <code>vk.ru</code> и войти/создать аккаунт.</li>
+    <li>Включить <strong>двухфакторную аутентификацию</strong> (2FA) в настройках безопасности — это защитит аккаунт.</li>
+    <li>Перейти в раздел «Сообщества» → «Создать сообщество».</li>
+    <li>Указать название (например, «Первый бот»), выбрать тематику, нажать «Создать».</li>
+  </ol>
+</section>
+
+<section id="l2-setup">
+  <h3>2.4 Настройка сообщества</h3>
+  <p>После создания сообщества нужно:</p>
+  <ol>
+    <li>Зайти в <strong>Управление → Сообщения</strong> и включить «Сообщения сообщества».</li>
+    <li>Перейти в <strong>Управление → Дополнительно → Работа с API</strong>.</li>
+    <li>Создать <strong>ключ доступа</strong> (токен) с правами: управление сообществом, сообщения сообщества.</li>
+    <li>Скопировать токен и сохранить в <code>.env</code>.</li>
+    <li>В разделе <strong>Long Poll API</strong> включить его и выбрать версию API (5.199).</li>
+    <li>В <strong>Типы событий</strong> включить «Входящее сообщение».</li>
+    <li>Скопировать <strong>ID сообщества</strong> из адресной строки (число после <code>club</code>).</li>
+  </ol>
+</section>
+
+<section id="l2-project">
+  <h3>2.5 Подготовка проекта</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">Терминал</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="com"># Создаём новую папку проекта и открываем в PyCharm</span></span></span>
+<span class="line"><span class="line-num">2</span><span class="line-code"><span class="com"># Устанавливаем нужные библиотеки:</span></span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code">pip install vk-api python-dotenv</span></span>
+<span class="line-comment"># vk-api — библиотека для работы с VK API</span>
+<span class="line-comment"># python-dotenv — читает переменные из файла .env</span>
+<span class="line"><span class="line-num">4</span><span class="line-code"><span class="com"># Создаём два пустых файла: lesson.py и .env</span></span></span>
+</pre>
+  </div>
+</section>
+
+<section id="l2-imports">
+  <h3>2.6 Импорт библиотек</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">lesson.py — блок импорта</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="kw">import</span> os</span></span>
+<span class="line-comment"># Встроенный модуль для работы с операционной системой. Нам нужен, чтобы читать переменные окружения</span>
+<span class="line"><span class="line-num">2</span><span class="line-code"><span class="kw">import</span> random</span></span>
+<span class="line-comment"># Встроенный модуль для генерации случайных чисел. Нужен для random_id при отправке сообщений</span>
+<span class="line"><span class="line-num">3</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">4</span><span class="line-code"><span class="kw">import</span> vk_api</span></span>
+<span class="line-comment"># Внешняя библиотека. Главный модуль: содержит класс VkApi для авторизации и работы с API</span>
+<span class="line"><span class="line-num">5</span><span class="line-code"><span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv</span></span>
+<span class="line-comment"># Из пакета dotenv импортируем конкретно функцию load_dotenv — она загружает .env в окружение</span>
+<span class="line"><span class="line-num">6</span><span class="line-code"><span class="kw">from</span> vk_api.bot_longpoll <span class="kw">import</span> VkBotEventType, VkBotLongPoll</span></span>
+<span class="line-comment"># Из модуля bot_longpoll берём два класса:</span>
+<span class="line-comment">#   VkBotEventType   — перечисление типов событий (MESSAGE_NEW и др.)</span>
+<span class="line-comment">#   VkBotLongPoll    — класс, который «слушает» события от сообщества</span>
+</pre>
+  </div>
+</section>
+
+<section id="l2-env">
+  <h3>2.7 Файл .env и чтение переменных</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">.env</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">VK_GROUP_TOKEN=ваш_токен_сообщества</span></span>
+<span class="line-comment"># Формат: ИМЯ=ЗНАЧЕНИЕ без пробелов вокруг = и без кавычек</span>
+<span class="line"><span class="line-num">2</span><span class="line-code">VK_GROUP_ID=240628413</span></span>
+<span class="line-comment"># Числовой ID вашего сообщества (без club)</span>
+</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">Чтение .env в Python</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="fn">load_dotenv</span>()</span></span>
+<span class="line-comment"># Вызываем функцию: она читает файл .env и добавляет все переменные в окружение ОС</span>
+<span class="line"><span class="line-num">2</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code">TOKEN = os.<span class="fn">getenv</span>(<span class="str">"VK_GROUP_TOKEN"</span>)</span></span>
+<span class="line-comment"># os.getenv("имя") — достаёт из окружения значение по имени и кладёт в переменную TOKEN</span>
+<span class="line-comment"># Если переменной нет — вернёт None</span>
+<span class="line"><span class="line-num">4</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">5</span><span class="line-code">GROUP_ID = <span class="fn">int</span>(os.<span class="fn">getenv</span>(<span class="str">"VK_GROUP_ID"</span>, <span class="str">"0"</span>))</span></span>
+<span class="line-comment"># Читаем ID с запасным значением "0" (если переменной нет).</span>
+<span class="line-comment"># int(...) — превращаем строку в целое число, т.к. API требует число, а getenv возвращает строку</span>
+</pre>
+  </div>
+</section>
+
+<section id="l2-send">
+  <h3>2.8 Функция отправки сообщения</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">send_message</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="kw">def</span> <span class="fn">send_message</span>(vk, peer_id, text):</span></span>
+<span class="line-comment"># Функция принимает 3 параметра:</span>
+<span class="line-comment">#   vk       — объект API (через него вызываем методы VK)</span>
+<span class="line-comment">#   peer_id  — ID получателя (пользователя или беседы)</span>
+<span class="line-comment">#   text     — текст сообщения</span>
+<span class="line"><span class="line-num">2</span><span class="line-code">    vk.messages.<span class="fn">send</span>(</span></span>
+<span class="line-comment"># Обращаемся к методу messages.send API VK — именно он отправляет сообщение</span>
+<span class="line"><span class="line-num">3</span><span class="line-code">        peer_id=peer_id,</span></span>
+<span class="line-comment"># Кому отправляем</span>
+<span class="line"><span class="line-num">4</span><span class="line-code">        message=text,</span></span>
+<span class="line-comment"># Что отправляем</span>
+<span class="line"><span class="line-num">5</span><span class="line-code">        random_id=random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">2_147_483_647</span>),</span></span>
+<span class="line-comment"># Уникальный ID сообщения (защита от повторной отправки).</span>
+<span class="line-comment"># randint(a, b) — случайное целое от a до b включительно.</span>
+<span class="line-comment"># 2_147_483_647 — максимальное 32-битное целое (можно писать с _ для читаемости)</span>
+<span class="line"><span class="line-num">6</span><span class="line-code">    )</span></span>
+</pre>
+  </div>
+</section>
+
+<section id="l2-connect">
+  <h3>2.9 Подключение к VK</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">main() — авторизация</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="kw">def</span> <span class="fn">main</span>():</span></span>
+<span class="line"><span class="line-num">2</span><span class="line-code">    <span class="kw">if</span> <span class="kw">not</span> TOKEN <span class="kw">or</span> GROUP_ID == <span class="num">0</span>:</span></span>
+<span class="line-comment"># Проверка: если токен пустой (None или '') ИЛИ ID равен 0 — значит, .env не настроен</span>
+<span class="line"><span class="line-num">3</span><span class="line-code">        <span class="kw">raise</span> <span class="fn">RuntimeError</span>(<span class="str">"Заполните VK_GROUP_TOKEN и VK_GROUP_ID в .env"</span>)</span></span>
+<span class="line-comment"># raise — выбрасываем исключение (ошибку). Программа остановится с понятным сообщением</span>
+<span class="line"><span class="line-num">4</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">5</span><span class="line-code">    vk_session = vk_api.<span class="fn">VkApi</span>(token=TOKEN)</span></span>
+<span class="line-comment"># Создаём сессию: объект VkApi с нашим токеном. Он сам будет авторизовываться</span>
+<span class="line"><span class="line-num">6</span><span class="line-code">    vk = vk_session.<span class="fn">get_api</span>()</span></span>
+<span class="line-comment"># get_api() возвращает «обёртку»: теперь vk.messages.send(...) — это вызов метода API</span>
+<span class="line-comment"># Можно обращаться к ЛЮБОМУ методу VK API через точку: vk.groups.getById(...), vk.users.get(...) и т.д.</span>
+<span class="line"><span class="line-num">7</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">8</span><span class="line-code">    longpoll = <span class="fn">VkBotLongPoll</span>(vk_session, GROUP_ID)</span></span>
+<span class="line-comment"># Создаём Long Poll-слушатель: он будет ждать события именно для нашего сообщества</span>
+<span class="line"><span class="line-num">9</span><span class="line-code">    <span class="fn">print</span>(<span class="str">"Бот запущен"</span>)</span></span>
+</pre>
+  </div>
+</section>
+
+<section id="l2-listen">
+  <h3>2.10 Получение событий</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">Цикл обработки событий</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">    <span class="kw">for</span> event <span class="kw">in</span> longpoll.<span class="fn">listen</span>():</span></span>
+<span class="line-comment"># listen() — бесконечный генератор событий. Цикл for будет крутиться вечно,</span>
+<span class="line-comment"># получая новые события по мере их появления</span>
+<span class="line"><span class="line-num">2</span><span class="line-code">        <span class="kw">if</span> event.type != VkBotEventType.MESSAGE_NEW:</span></span>
+<span class="line-comment"># Проверяем тип события. Если это НЕ новое сообщение — пропускаем</span>
+<span class="line-comment"># (могут приходить события о лайках, подписках и т.д.)</span>
+<span class="line"><span class="line-num">3</span><span class="line-code">            <span class="kw">continue</span></span></span>
+<span class="line-comment"># continue — перейти к следующей итерации цикла, игнорируя остальной код</span>
+<span class="line"><span class="line-num">4</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">5</span><span class="line-code">        message = event.object.message</span></span>
+<span class="line-comment"># event.object — объект события, а .message — вложенный словарь с данными сообщения</span>
+<span class="line"><span class="line-num">6</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">7</span><span class="line-code">        text = message.<span class="fn">get</span>(<span class="str">"text"</span>, <span class="str">""</span>).<span class="fn">strip</span>().<span class="fn">lower</span>()</span></span>
+<span class="line-comment"># .get("text", "") — безопасно достаём текст (если его нет — пустая строка)</span>
+<span class="line-comment"># .strip().lower() — убираем пробелы и приводим к нижнему регистру</span>
+<span class="line"><span class="line-num">8</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">9</span><span class="line-code">        peer_id = message[<span class="str">"peer_id"</span>]</span></span>
+<span class="line-comment"># peer_id — кому отвечать. В личных сообщениях это ID пользователя</span>
+<span class="line"><span class="line-num">10</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">11</span><span class="line-code">        <span class="kw">if</span> text <span class="kw">in</span> (<span class="str">"начать"</span>, <span class="str">"start"</span>, <span class="str">"привет"</span>):</span></span>
+<span class="line-comment"># Проверяем: если текст совпадает с одним из приветствий (кортеж строк)</span>
+<span class="line"><span class="line-num">12</span><span class="line-code">            <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Привет! Я бот сообщества VK."</span>)</span></span>
+<span class="line"><span class="line-num">13</span><span class="line-code">        <span class="kw">elif</span> text == <span class="str">"помощь"</span>:</span></span>
+<span class="line-comment"># elif = else if — следующая проверка, если первая не сработала</span>
+<span class="line"><span class="line-num">14</span><span class="line-code">            <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Команды: привет, помощь, кто ты"</span>)</span></span>
+<span class="line"><span class="line-num">15</span><span class="line-code">        <span class="kw">elif</span> text == <span class="str">"кто ты"</span>:</span></span>
+<span class="line"><span class="line-num">16</span><span class="line-code">            <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Я учебный Python-бот."</span>)</span></span>
+</pre>
+  </div>
+</section>
+
+<section id="l2-full">
+  <h3>2.11 Полный код бота (lesson.py)</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">lesson.py</span></div>
+<pre>
+<span class="line"><span class="line-num"> 1</span><span class="line-code"><span class="kw">import</span> os</span></span>
+<span class="line"><span class="line-num"> 2</span><span class="line-code"><span class="kw">import</span> random</span></span>
+<span class="line"><span class="line-num"> 3</span><span class="line-code"><span class="kw">import</span> vk_api</span></span>
+<span class="line"><span class="line-num"> 4</span><span class="line-code"><span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv</span></span>
+<span class="line"><span class="line-num"> 5</span><span class="line-code"><span class="kw">from</span> vk_api.bot_longpoll <span class="kw">import</span> VkBotEventType, VkBotLongPoll</span></span>
+<span class="line"><span class="line-num"> 6</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num"> 7</span><span class="line-code"><span class="fn">load_dotenv</span>()</span></span>
+<span class="line"><span class="line-num"> 8</span><span class="line-code">TOKEN = os.<span class="fn">getenv</span>(<span class="str">"VK_GROUP_TOKEN"</span>)</span></span>
+<span class="line"><span class="line-num"> 9</span><span class="line-code">GROUP_ID = <span class="fn">int</span>(os.<span class="fn">getenv</span>(<span class="str">"VK_GROUP_ID"</span>, <span class="str">"0"</span>))</span></span>
+<span class="line"><span class="line-num">10</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">11</span><span class="line-code"><span class="kw">def</span> <span class="fn">send_message</span>(vk, peer_id, text):</span></span>
+<span class="line"><span class="line-num">12</span><span class="line-code">    vk.messages.<span class="fn">send</span>(</span></span>
+<span class="line"><span class="line-num">13</span><span class="line-code">        peer_id=peer_id,</span></span>
+<span class="line"><span class="line-num">14</span><span class="line-code">        message=text,</span></span>
+<span class="line"><span class="line-num">15</span><span class="line-code">        random_id=random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">2_147_483_647</span>),</span></span>
+<span class="line"><span class="line-num">16</span><span class="line-code">    )</span></span>
+<span class="line"><span class="line-num">17</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">18</span><span class="line-code"><span class="kw">def</span> <span class="fn">main</span>():</span></span>
+<span class="line"><span class="line-num">19</span><span class="line-code">    <span class="kw">if</span> <span class="kw">not</span> TOKEN <span class="kw">or</span> GROUP_ID == <span class="num">0</span>:</span></span>
+<span class="line"><span class="line-num">20</span><span class="line-code">        <span class="kw">raise</span> <span class="fn">RuntimeError</span>(<span class="str">"Заполните VK_GROUP_TOKEN и VK_GROUP_ID в .env"</span>)</span></span>
+<span class="line"><span class="line-num">21</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">22</span><span class="line-code">    vk_session = vk_api.<span class="fn">VkApi</span>(token=TOKEN)</span></span>
+<span class="line"><span class="line-num">23</span><span class="line-code">    vk = vk_session.<span class="fn">get_api</span>()</span></span>
+<span class="line"><span class="line-num">24</span><span class="line-code">    longpoll = <span class="fn">VkBotLongPoll</span>(vk_session, GROUP_ID)</span></span>
+<span class="line"><span class="line-num">25</span><span class="line-code">    <span class="fn">print</span>(<span class="str">"Бот запущен"</span>)</span></span>
+<span class="line"><span class="line-num">26</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">27</span><span class="line-code">    <span class="kw">for</span> event <span class="kw">in</span> longpoll.<span class="fn">listen</span>():</span></span>
+<span class="line"><span class="line-num">28</span><span class="line-code">        <span class="kw">if</span> event.type != VkBotEventType.MESSAGE_NEW:</span></span>
+<span class="line"><span class="line-num">29</span><span class="line-code">            <span class="kw">continue</span></span></span>
+<span class="line"><span class="line-num">30</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">31</span><span class="line-code">        message = event.object.message</span></span>
+<span class="line"><span class="line-num">32</span><span class="line-code">        text = message.<span class="fn">get</span>(<span class="str">"text"</span>, <span class="str">""</span>).<span class="fn">strip</span>().<span class="fn">lower</span>()</span></span>
+<span class="line"><span class="line-num">33</span><span class="line-code">        peer_id = message[<span class="str">"peer_id"</span>]</span></span>
+<span class="line"><span class="line-num">34</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">35</span><span class="line-code">        <span class="kw">if</span> text <span class="kw">in</span> (<span class="str">"начать"</span>, <span class="str">"start"</span>, <span class="str">"привет"</span>):</span></span>
+<span class="line"><span class="line-num">36</span><span class="line-code">            <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Привет! Я бот сообщества VK."</span>)</span></span>
+<span class="line"><span class="line-num">37</span><span class="line-code">        <span class="kw">elif</span> text == <span class="str">"помощь"</span>:</span></span>
+<span class="line"><span class="line-num">38</span><span class="line-code">            <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Команды: привет, помощь, кто ты"</span>)</span></span>
+<span class="line"><span class="line-num">39</span><span class="line-code">        <span class="kw">elif</span> text == <span class="str">"кто ты"</span>:</span></span>
+<span class="line"><span class="line-num">40</span><span class="line-code">            <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Я учебный Python-бот."</span>)</span></span>
+<span class="line"><span class="line-num">41</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">42</span><span class="line-code"><span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:</span></span>
+<span class="line-comment"># Магическая проверка: код внутри выполнится, только если файл запущен напрямую (а не импортирован)</span>
+<span class="line"><span class="line-num">43</span><span class="line-code">    <span class="fn">main</span>()</span></span>
+</pre>
+  </div>
+
+  <div class="info-box success">
+    <strong>Тестирование:</strong> запустите <code>python lesson.py</code> и напишите сообществу: <code>привет</code>, <code>помощь</code>, <code>кто ты</code>.
+  </div>
+</section>
+
+<!-- ===================== ЗАНЯТИЕ 3 ===================== -->
+<section id="l3-cmd">
+  <h2 class="section-title">Занятие 3 · Команды и обработчики</h2>
+  <h3>3.1 Термины занятия</h3>
+  <div class="term-grid">
+    <div class="term-card">
+      <div class="term-name">Команда</div>
+      <div class="term-desc">Слово или фраза, по которой бот выбирает действие.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">Нормализация</div>
+      <div class="term-desc">Приведение текста к единому виду (убирает пробелы, приводит к одному регистру).</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">Обработчик</div>
+      <div class="term-desc">Функция, которая выполняет реакцию на команду.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">Lambda</div>
+      <div class="term-desc">Маленькая анонимная (безымянная) функция в одну строчку.</div>
+    </div>
+    <div class="term-card">
+      <div class="term-name">Словарь обработчиков</div>
+      <div class="term-desc">Структура, где ключ — команда, а значение — функция-обработчик.</div>
+    </div>
+  </div>
+</section>
+
+<section id="l3-norm">
+  <h3>3.2 Нормализация — функция normalize()</h3>
+  <p>Пользователь может написать «ПРИВЕТ», « привет » или «Привет». Для бота это должны быть одна и та же команда. Нормализация приводит всё к единому виду.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">normalize()</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="kw">def</span> <span class="fn">normalize</span>(text):</span></span>
+<span class="line-comment"># Объявляем функцию с одним параметром text</span>
+<span class="line"><span class="line-num">2</span><span class="line-code">    <span class="kw">return</span> <span class="str">""</span>.<span class="fn">join</span>(text.<span class="fn">lower</span>().<span class="fn">strip</span>().<span class="fn">split</span>())</span></span>
+<span class="line-comment"># Цепочка методов (выполняются слева направо, т.е. изнутри наружу):</span>
+<span class="line-comment">#   1) text.lower()   → "  ПРИВЕТ  " → "  привет  "</span>
+<span class="line-comment">#   2) .strip()       → "  привет  " → "привет"</span>
+<span class="line-comment">#   3) .split()       → "привет" → ["привет"]</span>
+<span class="line-comment">#   4) "".join(...)   → ["привет"] → "привет"</span>
+<span class="line-comment"># Итог: все пробелы убраны, регистр единый</span>
+</pre>
+  </div>
+
+  <div class="info-box">
+    <strong>Зачем <code>.split()</code> + <code>.join()</code>?</strong> <code>.strip()</code> убирает пробелы только по краям. А если пользователь написал «п р и в е т» с пробелами между буквами — связка split/join уберёт их все.
+  </div>
+</section>
+
+<section id="l3-lambda">
+  <h3>3.3 Lambda-функции</h3>
+  <p><strong>Lambda</strong> — это маленькая анонимная функция, которая:</p>
+  <ul>
+    <li>создаётся ключевым словом <code>lambda</code>;</li>
+    <li>умещается в одну строчку;</li>
+    <li>не требует имени (в отличие от <code>def</code>);</li>
+    <li>возвращает результат одного выражения.</li>
+  </ul>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">lambda.py</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">sum_two = <span class="kw">lambda</span> x, y: x + y</span></span>
+<span class="line-comment"># Разбираем по частям:</span>
+<span class="line-comment">#   lambda         — ключевое слово «создай анонимную функцию»</span>
+<span class="line-comment">#   x, y           — параметры (входные данные), как в def sum_two(x, y)</span>
+<span class="line-comment">#   :              — разделитель между параметрами и телом</span>
+<span class="line-comment">#   x + y          — тело функции (ровно одно выражение, return писать не нужно)</span>
+<span class="line-comment">#   sum_two = ...  — присваиваем функцию переменной, чтобы можно было вызывать</span>
+<span class="line"><span class="line-num">2</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code"><span class="fn">print</span>(<span class="fn">sum_two</span>(<span class="num">3</span>, <span class="num">5</span>))   <span class="com"># → 8</span></span></span>
+</pre>
+  </div>
+
+  <h4>Сравнение с обычной функцией:</h4>
+  <div class="code-block">
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="com"># Обычная функция — 2 строки, есть имя</span></span></span>
+<span class="line"><span class="line-num">2</span><span class="line-code"><span class="kw">def</span> <span class="fn">sum_two</span>(x, y):</span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code">    <span class="kw">return</span> x + y</span></span>
+<span class="line"><span class="line-num">4</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">5</span><span class="line-code"><span class="com"># Lambda — 1 строка, без имени</span></span></span>
+<span class="line"><span class="line-num">6</span><span class="line-code">sum_two = <span class="kw">lambda</span> x, y: x + y</span></span>
+</pre>
+  </div>
+
+  <div class="info-box success">
+    <strong>Когда использовать lambda?</strong> Когда функция очень простая (одно выражение) и нужна «здесь и сейчас» — например, как значение в словаре обработчиков.
+  </div>
+</section>
+
+<section id="l3-handlers">
+  <h3>3.4 Словарь обработчиков</h3>
+  <p>Вместо длинной цепочки <code>if / elif / elif</code> мы кладём все команды в словарь, где значение — это функция. Это делает код чище и позволяет легко добавлять новые команды.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="filename">handlers.py</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code"><span class="kw">def</span> <span class="fn">answer_help</span>(vk, peer_id):</span></span>
+<span class="line-comment"># Обычная функция-обработчик для команды "помощь"</span>
+<span class="line"><span class="line-num">2</span><span class="line-code">    <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Команды: привет, помощь, идея"</span>)</span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">4</span><span class="line-code"><span class="kw">def</span> <span class="fn">answer_idea</span>(vk, peer_id):</span></span>
+<span class="line-comment"># Функция-обработчик для команды "идея"</span>
+<span class="line"><span class="line-num">5</span><span class="line-code">    ideas = [<span class="str">"Написать игру"</span>, <span class="str">"Сделать бота-погоду"</span>, <span class="str">"Изучить Django"</span>]</span></span>
+<span class="line-comment"># Список идей — выбираем случайную</span>
+<span class="line"><span class="line-num">6</span><span class="line-code">    <span class="fn">send_message</span>(vk, peer_id, random.<span class="fn">choice</span>(ideas))</span></span>
+<span class="line-comment"># random.choice(список) — возвращает случайный элемент списка</span>
+<span class="line"><span class="line-num">7</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">8</span><span class="line-code">HANDLERS = {</span></span>
+<span class="line-comment"># ГЛАВНЫЙ СЛОВАРЬ ОБРАБОТЧИКОВ. Ключ — команда, значение — функция</span>
+<span class="line"><span class="line-num">9</span><span class="line-code">    <span class="str">"помощь"</span>: answer_help,</span></span>
+<span class="line-comment"># Ключу "помощь" соответствует функция answer_help (без скобок! — мы кладём саму функцию, а не вызываем её)</span>
+<span class="line"><span class="line-num">10</span><span class="line-code">    <span class="str">"идея"</span>:   answer_idea,</span></span>
+<span class="line"><span class="line-num">11</span><span class="line-code">    <span class="str">"привет"</span>: <span class="kw">lambda</span> vk, peer_id: <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Привет!"</span>),</span></span>
+<span class="line-comment"># Для коротких команд удобнее lambda — не нужно отдельно объявлять функцию</span>
+<span class="line"><span class="line-num">12</span><span class="line-code">}</span></span>
+</pre>
+  </div>
+
+  <h4>Как пользоваться словарем в цикле событий:</h4>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">Использование HANDLERS</span></div>
+<pre>
+<span class="line"><span class="line-num">1</span><span class="line-code">handler = HANDLERS.<span class="fn">get</span>(text)</span></span>
+<span class="line-comment"># Ищем обработчик по нормализованному тексту. Если команды нет — handler будет None</span>
+<span class="line"><span class="line-num">2</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">3</span><span class="line-code"><span class="kw">if</span> handler:</span></span>
+<span class="line-comment"># Если handler существует (не None) — значит, команда найдена</span>
+<span class="line"><span class="line-num">4</span><span class="line-code">    <span class="fn">handler</span>(vk, peer_id)</span></span>
+<span class="line-comment"># Вызываем функцию-обработчик, передавая ей vk и peer_id</span>
+<span class="line"><span class="line-num">5</span><span class="line-code"><span class="kw">else</span>:</span></span>
+<span class="line"><span class="line-num">6</span><span class="line-code">    <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Не знаю такую команду. Напиши: помощь"</span>)</span></span>
+<span class="line-comment"># Если команды нет в словаре — отвечаем запасным сообщением</span>
+</pre>
+  </div>
+
+  <div class="info-box warn">
+    <strong>Важно:</strong> в словаре <code>answer_help</code> пишется БЕЗ скобок. Со скобками <code>answer_help()</code> — это вызов функции (она выполнится сразу). Без скобок — это сама функция как объект.
+  </div>
+</section>
+
+<section id="l3-full3">
+  <h3>3.5 Полный код бота с обработчиками</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="filename">lesson.py — финальная версия</span></div>
+<pre>
+<span class="line"><span class="line-num"> 1</span><span class="line-code"><span class="kw">import</span> os</span></span>
+<span class="line"><span class="line-num"> 2</span><span class="line-code"><span class="kw">import</span> random</span></span>
+<span class="line"><span class="line-num"> 3</span><span class="line-code"><span class="kw">import</span> vk_api</span></span>
+<span class="line"><span class="line-num"> 4</span><span class="line-code"><span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv</span></span>
+<span class="line"><span class="line-num"> 5</span><span class="line-code"><span class="kw">from</span> vk_api.bot_longpoll <span class="kw">import</span> VkBotEventType, VkBotLongPoll</span></span>
+<span class="line"><span class="line-num"> 6</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num"> 7</span><span class="line-code"><span class="fn">load_dotenv</span>()</span></span>
+<span class="line"><span class="line-num"> 8</span><span class="line-code">TOKEN = os.<span class="fn">getenv</span>(<span class="str">"VK_GROUP_TOKEN"</span>)</span></span>
+<span class="line"><span class="line-num"> 9</span><span class="line-code">GROUP_ID = <span class="fn">int</span>(os.<span class="fn">getenv</span>(<span class="str">"VK_GROUP_ID"</span>, <span class="str">"0"</span>))</span></span>
+<span class="line"><span class="line-num">10</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">11</span><span class="line-code"><span class="kw">def</span> <span class="fn">normalize</span>(text):</span></span>
+<span class="line"><span class="line-num">12</span><span class="line-code">    <span class="kw">return</span> <span class="str">""</span>.<span class="fn">join</span>(text.<span class="fn">lower</span>().<span class="fn">strip</span>().<span class="fn">split</span>())</span></span>
+<span class="line"><span class="line-num">13</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">14</span><span class="line-code"><span class="kw">def</span> <span class="fn">send_message</span>(vk, peer_id, text):</span></span>
+<span class="line"><span class="line-num">15</span><span class="line-code">    vk.messages.<span class="fn">send</span>(</span></span>
+<span class="line"><span class="line-num">16</span><span class="line-code">        peer_id=peer_id,</span></span>
+<span class="line"><span class="line-num">17</span><span class="line-code">        message=text,</span></span>
+<span class="line"><span class="line-num">18</span><span class="line-code">        random_id=random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">2_147_483_647</span>),</span></span>
+<span class="line"><span class="line-num">19</span><span class="line-code">    )</span></span>
+<span class="line"><span class="line-num">20</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">21</span><span class="line-code"><span class="kw">def</span> <span class="fn">answer_help</span>(vk, peer_id):</span></span>
+<span class="line"><span class="line-num">22</span><span class="line-code">    <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Команды: привет, помощь, идея"</span>)</span></span>
+<span class="line"><span class="line-num">23</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">24</span><span class="line-code"><span class="kw">def</span> <span class="fn">answer_idea</span>(vk, peer_id):</span></span>
+<span class="line"><span class="line-num">25</span><span class="line-code">    ideas = [<span class="str">"Написать игру"</span>, <span class="str">"Сделать бота-погоду"</span>, <span class="str">"Изучить Django"</span>]</span></span>
+<span class="line"><span class="line-num">26</span><span class="line-code">    <span class="fn">send_message</span>(vk, peer_id, random.<span class="fn">choice</span>(ideas))</span></span>
+<span class="line"><span class="line-num">27</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">28</span><span class="line-code">HANDLERS = {</span></span>
+<span class="line"><span class="line-num">29</span><span class="line-code">    <span class="str">"помощь"</span>: answer_help,</span></span>
+<span class="line"><span class="line-num">30</span><span class="line-code">    <span class="str">"идея"</span>:   answer_idea,</span></span>
+<span class="line"><span class="line-num">31</span><span class="line-code">    <span class="str">"привет"</span>: <span class="kw">lambda</span> vk, peer_id: <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Привет!"</span>),</span></span>
+<span class="line"><span class="line-num">32</span><span class="line-code">}</span></span>
+<span class="line"><span class="line-num">33</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">34</span><span class="line-code"><span class="kw">def</span> <span class="fn">main</span>():</span></span>
+<span class="line"><span class="line-num">35</span><span class="line-code">    <span class="kw">if</span> <span class="kw">not</span> TOKEN <span class="kw">or</span> GROUP_ID == <span class="num">0</span>:</span></span>
+<span class="line"><span class="line-num">36</span><span class="line-code">        <span class="kw">raise</span> <span class="fn">RuntimeError</span>(<span class="str">"Заполните VK_GROUP_TOKEN и VK_GROUP_ID в .env"</span>)</span></span>
+<span class="line"><span class="line-num">37</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">38</span><span class="line-code">    vk_session = vk_api.<span class="fn">VkApi</span>(token=TOKEN)</span></span>
+<span class="line"><span class="line-num">39</span><span class="line-code">    vk = vk_session.<span class="fn">get_api</span>()</span></span>
+<span class="line"><span class="line-num">40</span><span class="line-code">    longpoll = <span class="fn">VkBotLongPoll</span>(vk_session, GROUP_ID)</span></span>
+<span class="line"><span class="line-num">41</span><span class="line-code">    <span class="fn">print</span>(<span class="str">"Бот запущен"</span>)</span></span>
+<span class="line"><span class="line-num">42</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">43</span><span class="line-code">    <span class="kw">for</span> event <span class="kw">in</span> longpoll.<span class="fn">listen</span>():</span></span>
+<span class="line"><span class="line-num">44</span><span class="line-code">        <span class="kw">if</span> event.type != VkBotEventType.MESSAGE_NEW:</span></span>
+<span class="line"><span class="line-num">45</span><span class="line-code">            <span class="kw">continue</span></span></span>
+<span class="line"><span class="line-num">46</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">47</span><span class="line-code">        message = event.object.message</span></span>
+<span class="line"><span class="line-num">48</span><span class="line-code">        text = <span class="fn">normalize</span>(message.<span class="fn">get</span>(<span class="str">"text"</span>, <span class="str">""</span>))</span></span>
+<span class="line-comment"># Теперь используем нашу функцию normalize вместо цепочки strip().lower()</span>
+<span class="line"><span class="line-num">49</span><span class="line-code">        peer_id = message[<span class="str">"peer_id"</span>]</span></span>
+<span class="line"><span class="line-num">50</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">51</span><span class="line-code">        handler = HANDLERS.<span class="fn">get</span>(text)</span></span>
+<span class="line-comment"># Ищем функцию-обработчик по команде</span>
+<span class="line"><span class="line-num">52</span><span class="line-code">        <span class="kw">if</span> handler:</span></span>
+<span class="line"><span class="line-num">53</span><span class="line-code">            <span class="fn">handler</span>(vk, peer_id)</span></span>
+<span class="line-comment"># Если нашли — вызываем</span>
+<span class="line"><span class="line-num">54</span><span class="line-code">        <span class="kw">else</span>:</span></span>
+<span class="line"><span class="line-num">55</span><span class="line-code">            <span class="fn">send_message</span>(vk, peer_id, <span class="str">"Не знаю такую команду. Напиши: помощь"</span>)</span></span>
+<span class="line"><span class="line-num">56</span><span class="line-code"></span></span>
+<span class="line"><span class="line-num">57</span><span class="line-code"><span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:</span></span>
+<span class="line"><span class="line-num">58</span><span class="line-code">    <span class="fn">main</span>()</span></span>
+</pre>
+  </div>
+
+  <h3>Рефлексия — ключевые вопросы</h3>
+  <div class="info-box success">
+    <strong>Что делает нормализация текста?</strong><br>
+    Убирает лишние пробелы и приводит текст к единому регистру (нижнему). Благодаря этому «ПРИВЕТ», « привет » и «Привет» становятся одной командой.
+  </div>
+  <div class="info-box success">
+    <strong>Что хранится в словаре обработчиков?</strong><br>
+    Ключом является команда (строка), а значением — функция-обработчик. Это позволяет заменить громоздкие <code>if/elif</code> на одну короткую проверку <code>HANDLERS.get(text)</code>.
+  </div>
+</section>
+
+<div style="text-align:center; padding: 40px 0; color: var(--text-dim); border-top: 1px solid var(--border); margin-top: 60px;">
+  <p>📘 Python. Создание ботов — шпаргалка по трём занятиям</p>
+  <p style="font-size: 13px;">Успехов в разработке! 🚀</p>
+</div>
+
+</main>
+
+<script>
+  // Плавная прокрутка по клику на ссылки в сайдбаре
+  document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>
